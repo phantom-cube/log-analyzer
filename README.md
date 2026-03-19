@@ -15,8 +15,8 @@
 ## 效果展示
 
 <p align="center">
-  <img src="docs/images/img.png" width="49%" />
-  <img src="docs/images/img_1.png" width="49%" />
+  <img src="docs/images/screenshot-1.png" width="49%" alt="上传界面" />
+  <img src="docs/images/screenshot-2.png" width="49%" alt="分析结果" />
 </p>
 
 ## 技术栈
