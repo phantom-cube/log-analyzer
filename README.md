@@ -15,8 +15,8 @@
 ## 效果展示
 
 <p align="center">
-  <img src=".github/assets/img.png" width="49%" />
-  <img src=".github/assets/img_1.png" width="49%" />
+  <img src="docs/images/img.png" width="49%" />
+  <img src="docs/images/img_1.png" width="49%" />
 </p>
 
 ## 技术栈
