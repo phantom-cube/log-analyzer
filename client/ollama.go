@@ -12,12 +12,12 @@ import (
 
 const (
 	maxTokens      = 1000 // Reduced for faster CPU processing
-	analysisPrompt = `Analyze this log and provide:
-1. Summary
-2. Key errors/warnings
-3. Recommendations
+	analysisPrompt = `分析这段日志并提供：
+1. 摘要
+2. 关键错误/警告
+3. 建议
 
-Log:
+日志：
 %s`
 )
 
@@ -67,7 +67,7 @@ func AnalyzeLogWithAI(logContent string) (string, error) {
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    openai.ChatMessageRoleSystem,
-					Content: "You are a log analyzer. Be concise.",
+					Content: "你是一个日志分析专家。请用中文简洁地回答。",
 				},
 				{
 					Role:    openai.ChatMessageRoleUser,
