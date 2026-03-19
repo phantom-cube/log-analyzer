@@ -1,0 +1,30 @@
+2024-03-18 10:15:23 INFO  [main] Application starting...
+2024-03-18 10:15:24 INFO  [main] Loading configuration from /etc/app/config.yaml
+2024-03-18 10:15:24 INFO  [main] Database connection pool initialized (max: 20)
+2024-03-18 10:15:25 INFO  [main] Server started on port 8080
+2024-03-18 10:15:30 INFO  [http] GET /api/users 200 45ms
+2024-03-18 10:15:35 WARN  [db] Connection pool usage at 85% capacity
+2024-03-18 10:15:40 INFO  [http] POST /api/users 201 120ms
+2024-03-18 10:15:45 ERROR [http] GET /api/products/999 404 12ms - Product not found
+2024-03-18 10:15:50 INFO  [http] GET /api/orders 200 67ms
+2024-03-18 10:15:55 ERROR [db] Connection timeout after 5000ms - retrying...
+2024-03-18 10:15:57 INFO  [db] Connection retry successful
+2024-03-18 10:16:00 INFO  [http] POST /api/orders 201 234ms
+2024-03-18 10:16:05 WARN  [cache] Redis connection latency increased to 150ms
+2024-03-18 10:16:10 ERROR [http] POST /api/payment 500 1245ms - Payment gateway timeout
+2024-03-18 10:16:15 ERROR [http] POST /api/payment 500 1189ms - Payment gateway timeout
+2024-03-18 10:16:20 CRITICAL [system] Payment service unavailable - switching to backup
+2024-03-18 10:16:25 INFO  [system] Backup payment service activated
+2024-03-18 10:16:30 INFO  [http] POST /api/payment 201 456ms
+2024-03-18 10:16:35 INFO  [http] GET /api/orders/12345 200 34ms
+2024-03-18 10:16:40 WARN  [memory] Heap usage at 78% - consider garbage collection
+2024-03-18 10:16:45 INFO  [gc] Garbage collection completed in 125ms
+2024-03-18 10:16:50 INFO  [http] GET /health 200 5ms
+2024-03-18 10:16:55 ERROR [auth] Failed login attempt for user: admin from IP 192.168.1.100
+2024-03-18 10:17:00 ERROR [auth] Failed login attempt for user: admin from IP 192.168.1.100
+2024-03-18 10:17:05 ERROR [auth] Failed login attempt for user: admin from IP 192.168.1.100
+2024-03-18 10:17:10 WARN  [security] IP 192.168.1.100 blocked due to multiple failed login attempts
+2024-03-18 10:17:15 INFO  [http] GET /api/stats 200 89ms
+2024-03-18 10:17:20 INFO  [scheduler] Running daily backup job
+2024-03-18 10:17:25 INFO  [backup] Database backup completed successfully (size: 2.3GB)
+2024-03-18 10:17:30 INFO  [http] GET /api/users/profile 200 23ms
