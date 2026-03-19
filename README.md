@@ -12,6 +12,13 @@
 - **⚡ RESTful API**: 易于与其他工具集成
 - **💾 零成本**: 100% 免费，无限使用
 
+## 效果展示
+
+<p align="center">
+  <img src=".github/assets/img.png" width="49%" />
+  <img src=".github/assets/img_1.png" width="49%" />
+</p>
+
 ## 技术栈
 
 - **后端**: Go 1.25+
