@@ -1,12 +1,13 @@
 package handler
 
 import (
-	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 
 	"log-analyzer/client"
+
+	"github.com/gin-gonic/gin"
 )
 
 const maxLogSize = 10 * 1024 * 1024 // 10MB
@@ -16,65 +17,64 @@ type AnalyzeResponse struct {
 	Error    string `json:"error,omitempty"`
 }
 
-func AnalyzeLog(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		sendError(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	// Parse multipart form
-	if err := r.ParseMultipartForm(maxLogSize); err != nil {
-		sendError(w, "Failed to parse form: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-
+func AnalyzeLog(c *gin.Context) {
 	// Get uploaded file
-	file, header, err := r.FormFile("logfile")
+	file, err := c.FormFile("logfile")
 	if err != nil {
-		sendError(w, "Failed to get log file: "+err.Error(), http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, AnalyzeResponse{
+			Error: "Failed to get log file: " + err.Error(),
+		})
 		return
 	}
-	defer file.Close()
 
 	// Validate file size
-	if header.Size > maxLogSize {
-		sendError(w, "File too large (max 10MB)", http.StatusBadRequest)
+	if file.Size > maxLogSize {
+		c.JSON(http.StatusBadRequest, AnalyzeResponse{
+			Error: "File too large (max 10MB)",
+		})
 		return
 	}
 
-	// Read log content
-	logContent, err := io.ReadAll(file)
+	// Open uploaded file
+	uploadedFile, err := file.Open()
 	if err != nil {
-		sendError(w, "Failed to read log file: "+err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, AnalyzeResponse{
+			Error: "Failed to open log file: " + err.Error(),
+		})
+		return
+	}
+	defer uploadedFile.Close()
+
+	// Read log content
+	logContent, err := io.ReadAll(uploadedFile)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, AnalyzeResponse{
+			Error: "Failed to read log file: " + err.Error(),
+		})
 		return
 	}
 
 	if len(logContent) == 0 {
-		sendError(w, "Log file is empty", http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, AnalyzeResponse{
+			Error: "Log file is empty",
+		})
 		return
 	}
 
-	log.Printf("Analyzing log file: %s (size: %d bytes)", header.Filename, len(logContent))
+	log.Printf("Analyzing log file: %s (size: %d bytes)", file.Filename, len(logContent))
 
-	// Call OpenAI API for analysis
+	// Call Ollama API for analysis
 	analysis, err := client.AnalyzeLogWithAI(string(logContent))
 	if err != nil {
 		log.Printf("Error analyzing log: %v", err)
-		sendError(w, "Failed to analyze log: "+err.Error(), http.StatusInternalServerError)
+		c.JSON(http.StatusInternalServerError, AnalyzeResponse{
+			Error: "Failed to analyze log: " + err.Error(),
+		})
 		return
 	}
 
 	// Send response
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(AnalyzeResponse{
+	c.JSON(http.StatusOK, AnalyzeResponse{
 		Analysis: analysis,
-	})
-}
-
-func sendError(w http.ResponseWriter, message string, statusCode int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(statusCode)
-	json.NewEncoder(w).Encode(AnalyzeResponse{
-		Error: message,
 	})
 }

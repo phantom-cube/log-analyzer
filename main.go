@@ -5,10 +5,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"time"
 
 	"log-analyzer/handler"
 
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
 
@@ -18,10 +18,19 @@ func main() {
 		log.Println("Warning: .env file not found, using default configuration")
 	}
 
+	// Set gin mode based on environment
+	ginMode := os.Getenv("GIN_MODE")
+	if ginMode == "" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	// Create gin router
+	r := gin.Default()
+
 	// Setup routes
-	http.HandleFunc("/", handleHome)
-	http.HandleFunc("/analyze", handler.AnalyzeLog)
-	http.HandleFunc("/health", handleHealth)
+	r.GET("/", handleHome)
+	r.POST("/analyze", handler.AnalyzeLog)
+	r.GET("/health", handleHealth)
 
 	// Start server
 	port := os.Getenv("PORT")
@@ -35,25 +44,13 @@ func main() {
 	fmt.Println("  - POST /analyze - Analyze log file")
 	fmt.Println("  - GET  /health  - Health check")
 
-	// Create server with extended timeouts for LLM processing
-	server := &http.Server{
-		Addr:         ":" + port,
-		ReadTimeout:  15 * time.Minute,
-		WriteTimeout: 15 * time.Minute,
-		IdleTimeout:  2 * time.Minute,
-	}
-
-	if err := server.ListenAndServe(); err != nil {
+	// Run server
+	if err := r.Run(":" + port); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func handleHome(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
+func handleHome(c *gin.Context) {
 	html := `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -741,16 +738,11 @@ func handleHome(w http.ResponseWriter, r *http.Request) {
 </body>
 </html>`
 
-	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(html))
+	c.Data(http.StatusOK, "text/html; charset=utf-8", []byte(html))
 }
 
-func handleHealth(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.Write([]byte(`{"status":"healthy"}`))
+func handleHealth(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"status": "healthy",
+	})
 }
